@@ -28,6 +28,8 @@ function App() {
   const [activeNoteId, setActiveNoteId] = useState<number>(1);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileView, setMobileView] = useState("editor"); // 'editor', 'preview', 'sidebar'
+  const [draggedNoteId, setDraggedNoteId] = useState<number | null>(null);
+  const [dragOverNoteId, setDragOverNoteId] = useState<number | null>(null);
 
   const activeNote = notes.find((note) => note.id === activeNoteId);
   const markdown = activeNote?.content || "";
@@ -69,6 +71,50 @@ function App() {
   const selectNote = (noteId: number) => {
     setActiveNoteId(noteId);
     setMobileView("editor");
+  };
+
+  // Move note to new position
+  const moveNote = (draggedId: number, targetId: number) => {
+    const draggedIndex = notes.findIndex(note => note.id === draggedId);
+    const targetIndex = notes.findIndex(note => note.id === targetId);
+    
+    if (draggedIndex === -1 || targetIndex === -1) return;
+    
+    const newNotes = [...notes];
+    const [draggedNote] = newNotes.splice(draggedIndex, 1);
+    newNotes.splice(targetIndex, 0, draggedNote);
+    
+    setNotes(newNotes);
+  };
+
+  // Drag event handlers
+  const handleDragStart = (e: React.DragEvent, noteId: number) => {
+    setDraggedNoteId(noteId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, noteId: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverNoteId(noteId);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverNoteId(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetId: number) => {
+    e.preventDefault();
+    if (draggedNoteId && draggedNoteId !== targetId) {
+      moveNote(draggedNoteId, targetId);
+    }
+    setDraggedNoteId(null);
+    setDragOverNoteId(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedNoteId(null);
+    setDragOverNoteId(null);
   };
 
   // Format text functions
@@ -183,8 +229,16 @@ function App() {
                 key={note.id}
                 className={`note-item ${
                   note.id === activeNoteId ? "active" : ""
+                } ${note.id === draggedNoteId ? "dragging" : ""} ${
+                  note.id === dragOverNoteId ? "drag-over" : ""
                 }`}
                 onClick={() => selectNote(note.id)}
+                draggable
+                onDragStart={(e) => handleDragStart(e, note.id)}
+                onDragOver={(e) => handleDragOver(e, note.id)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, note.id)}
+                onDragEnd={handleDragEnd}
               >
                 <h3>{note.title}</h3>
                 <p>{note.content.replace(/[#*`-]/g, "").substring(0, 50)}...</p>
