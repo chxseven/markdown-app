@@ -179,6 +179,23 @@ body {
   white-space: nowrap;
 }
 
+/* Drag and drop styles */
+.note-item.dragging {
+  opacity: 0.5;
+  transform: rotate(2deg);
+  cursor: grabbing;
+}
+
+.note-item.drag-over {
+  background-color: #2980b9 !important;
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.note-item[draggable="true"] {
+  cursor: grab;
+}
+
 /* Editor container */
 .editor-container {
   flex: 1;
@@ -243,6 +260,7 @@ body {
   line-height: 1.5;
   resize: none;
   background-color: #fff;
+  color: #000;
 }
 
 /* Preview */
