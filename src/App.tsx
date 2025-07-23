@@ -52,6 +52,27 @@ function App() {
     return firstLine.trim().substring(0, 30) || "Untitled";
   };
 
+  // Format datetime for display
+  const formatDateTime = (date: Date): string => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else if (diffDays === 1) {
+      return "Yesterday";
+    } else if (diffDays < 7) {
+      return `${diffDays} days ago`;
+    } else {
+      return date.toLocaleDateString([], { 
+        month: 'short', 
+        day: 'numeric',
+        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+      });
+    }
+  };
+
   // Create new note
   const createNewNote = () => {
     const newNote: Note = {
@@ -186,7 +207,10 @@ function App() {
                 }`}
                 onClick={() => selectNote(note.id)}
               >
-                <h3>{note.title}</h3>
+                <div className="note-header">
+                  <h3>{note.title}</h3>
+                  <span className="note-date">{formatDateTime(note.createdAt)}</span>
+                </div>
                 <p>{note.content.replace(/[#*`-]/g, "").substring(0, 50)}...</p>
               </div>
             ))}
