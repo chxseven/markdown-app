@@ -12,7 +12,7 @@ function App() {
   const [notes, setNotes] = useState<Note[]>([
     {
       id: 1,
-      title: "Advance Note",
+      title: "Sample Note",
       content:
         "# Hello World\n\nStart typing your **markdown** here!\n\n- Item 1\n- Item 2\n- Item 3",
       createdAt: new Date(),
